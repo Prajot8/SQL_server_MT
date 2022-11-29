@@ -55,4 +55,79 @@ Select * FROM Computer_Nis1023;
 SELECT * FROM Employee_Nis1023;
 Select * FROM Manufacturer_Nis1023;
 
+-------------------------------------------------------------------------------
 
+--Questions
+/*
+1. List the manufacturers’ names that are located in South Dakota.
+*/
+
+SELECT MfName, City 
+FROM Manufacturer_Nis1023
+WHERE City LIKE 'South Dakota';
+
+/*
+2. Calculate the average weight of the computers in use.
+*/
+
+SELECT CAST(AVG(Weight) AS NUMERIC(4,2)) AS Avg_weight
+FROM Computer_Nis1023
+WHERE EmployeeId IS NOT NULL;
+
+/*
+3. List the employee names for employees whose area_code starts with 2
+*/
+
+SELECT EmpName,area_code FROM Employee_Nis1023
+WHERE area_code LIKE '2%';
+
+/*
+4. List the serial numbers for computers that have a weight below
+average.
+*/
+
+SELECT SerialNumber, Weight
+FROM Computer_Nis1023
+WHERE Weight < (SELECT AVG(Weight) FROM Computer_Nis1023);
+
+/*
+5. List the manufacturer names of companies that do not have any
+computers in use. Use a subquery.
+*/
+
+SELECT MfName FROM Manufacturer_Nis1023
+WHERE MfName NOT IN
+(SELECT DISTINCT MfName FROM Computer_Nis1023);
+
+/*
+6. Create a VIEW with the list of employee name, their computer serial
+number, and the city that they were manufactured in. Use a join.
+*/
+
+CREATE VIEW vwEmpCompReport
+AS
+SELECT e.EmpName, c.SerialNumber, m.City 
+FROM Employee_Nis1023 e
+JOIN Computer_Nis1023 c
+ON e.EmployeeId=c.EmployeeId
+JOIN Manufacturer_Nis1023 m
+ON c.MfName=m.MfName;
+
+/*
+7. Write a Stored Procedure to accept EmployeeId as parameter and
+List the serial number, manufacturer name, model, and weight of
+computer that belong to the specified Employeeid.
+*/
+
+CREATE PROCEDURE spCompReport
+@EmpId INT
+AS
+BEGIN
+
+SELECT SerialNumber, MfName, Model, Weight
+FROM Computer_Nis1023
+WHERE EmployeeId=@EmpId;
+
+END
+
+EXEC spCompReport 2;
